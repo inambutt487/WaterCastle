@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		04DF57CD2E09695200F3531C /* PartialSheet in Frameworks */ = {isa = PBXBuildFile; productRef = 04DF57CC2E09695200F3531C /* PartialSheet */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		04DF57282E09682600F3531C /* WaterCastle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WaterCastle.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04DF57CD2E09695200F3531C /* PartialSheet in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = WaterCastle;
 			packageProductDependencies = (
+				04DF57CC2E09695200F3531C /* PartialSheet */,
 			);
 			productName = WaterCastle;
 			productReference = 04DF57282E09682600F3531C /* WaterCastle.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 04DF571F2E09682600F3531C;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				04DF57CB2E09695200F3531C /* XCRemoteSwiftPackageReference "PartialSheet" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 04DF57292E09682600F3531C /* Products */;
 			projectDirPath = "";
@@ -322,6 +331,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		04DF57CB2E09695200F3531C /* XCRemoteSwiftPackageReference "PartialSheet" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AndreaMiotto/PartialSheet";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.1.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		04DF57CC2E09695200F3531C /* PartialSheet */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 04DF57CB2E09695200F3531C /* XCRemoteSwiftPackageReference "PartialSheet" */;
+			productName = PartialSheet;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 04DF57202E09682600F3531C /* Project object */;
 }

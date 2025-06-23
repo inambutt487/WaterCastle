@@ -1,0 +1,27 @@
+/* Common */
+"app_name" = "ShopCastle";
+"loading" = "Loading...";
+
+/* Products */
+"product_title" = "Products";
+"product_list_title" = "All Products";
+"product_details" = "Product Details";
+"product_price" = "Price";
+"product_description" = "Description";
+"product_add_to_cart" = "Add to Cart";
+
+/* Errors */
+"error_generic" = "Something went wrong. Please try again.";
+"error_network" = "Unable to connect. Please try again.";
+"error_loading" = "Error loading data.";
+
+/* Buttons */
+"button_ok" = "OK";
+"button_cancel" = "Cancel";
+"button_retry" = "Retry";
+"button_continue" = "Continue";
+
+/* Cart */
+"cart_title" = "Shopping Cart";
+"cart_empty" = "Your cart is empty";
+"cart_checkout" = "Checkout"; 
