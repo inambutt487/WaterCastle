@@ -8,7 +8,9 @@ import Foundation
 
 final class CompanySettingsManager: ObservableObject {
     static let shared = CompanySettingsManager()
-    @Published var settings: CompanySettingsResponse.Rows?
+    @Published var settings: Rows?
 
-    private init() {}
+    private init() {
+        self.settings = LocalDatabase.loadCompanySettings()
+    }
 }

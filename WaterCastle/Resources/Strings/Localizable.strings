@@ -24,4 +24,39 @@
 /* Cart */
 "cart_title" = "Shopping Cart";
 "cart_empty" = "Your cart is empty";
-"cart_checkout" = "Checkout"; 
+"cart_checkout" = "Checkout";
+
+/* New keys */
+"my_cart" = "My Cart";
+"checkout" = "Checkout";
+"apply_coupon" = "Apply Coupon";
+"item_total" = "Item Total";
+"delivery_charges" = "Delivery Charges";
+"discount" = "Discount";
+"total_amount" = "Total Amount";
+"submit_order" = "Submit Order";
+"shipping_address" = "Shipping Address";
+"change" = "Change";
+"payment" = "Payment";
+"order" = "Order:";
+"total" = "Total:";
+"favorite" = "Favorite";
+"sort_by" = "Sort By";
+"popular" = "Popular";
+"newest" = "Newest";
+"customer_review" = "Customer Review";
+"price_lowest_to_high" = "Price: Lowest to high";
+"price_highest_to_low" = "Price: Highest to low";
+"new" = "New";
+"off_percent" = "% OFF";
+"add_to_cart" = "Add To Cart";
+"select_size" = "Select Size";
+"select_color" = "Select Color";
+"similar_products" = "Similar Products";
+"see_all" = "See All";
+"trash" = "Delete";
+"tab_home" = "Home";
+"tab_shop" = "Shop";
+"tab_favorite" = "Favorite";
+"tab_cart" = "Cart";
+"tab_more" = "More"; 

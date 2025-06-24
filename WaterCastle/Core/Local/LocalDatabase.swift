@@ -10,16 +10,20 @@ import Foundation
 struct LocalDatabase {
     static let companySettingsKey = "companySettings"
 
-    static func saveCompanySettings(_ settings: CompanySettingsResponse.Rows) {
+    static func saveCompanySettings(_ settings: Rows) {
         if let data = try? JSONEncoder().encode(settings) {
             UserDefaults.standard.set(data, forKey: companySettingsKey)
         }
     }
 
-    static func loadCompanySettings() -> CompanySettingsResponse.Rows? {
-        if let data = UserDefaults.standard.data(forKey: companySettingsKey),
-           let settings = try? JSONDecoder().decode(CompanySettingsResponse.Rows.self, from: data) {
-            return settings
+    static func loadCompanySettings() -> Rows? {
+        if let data = UserDefaults.standard.data(forKey: companySettingsKey) {
+            do {
+                let settings = try JSONDecoder().decode(Rows.self, from: data)
+                return settings
+            } catch {
+                print("[LocalDatabase] Failed to decode CompanySettingsResponse.Rows: \(error)")
+            }
         }
         return nil
     }

@@ -1,6 +1,17 @@
+//
+//  StartViewModel.swift
+//  WaterCastle
+//
+//  Created by Mac on 23/06/2025.
+//
+
+import Foundation
+
+
 class StartViewModel: BaseViewModel {
     @Published var showStartButton = false
     
+    @MainActor
     func fetchCompanySettings() async {
         self.isLoading = true
         let body: [String: Any] = [
@@ -15,16 +26,16 @@ class StartViewModel: BaseViewModel {
             body: body,
             headers: headers
         )
-        DispatchQueue.main.async {
-            self.isLoading = false
-            switch result {
-            case .success(let decoded):
-                CompanySettingsManager.shared.settings = decoded.rows
-                LocalDatabase.saveCompanySettings(decoded.rows)
-                self.showStartButton = true
-            case .failure(let error):
-                self.handleError(error)
-            }
+        
+        self.isLoading = false
+        switch result {
+        case .success(let decoded):
+            CompanySettingsManager.shared.settings = decoded.rows
+            LocalDatabase.saveCompanySettings(decoded.rows)
+            self.showStartButton = true
+        case .failure(let error):
+            self.handleError(error)
         }
     }
+
 }

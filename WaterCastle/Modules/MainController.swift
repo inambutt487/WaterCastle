@@ -1,4 +1,3 @@
-
 import SwiftUI
 
 struct MainController: View {
@@ -7,37 +6,37 @@ struct MainController: View {
     
     var body: some View {
         ZStack {
-            Color.init(hex: "f9f9f9")
+            Constants.AppColor.lightGrayColor
                 .edgesIgnoringSafeArea(.all)
             TabView(selection: $selected) {
                 HomeView()
                     .tabItem {
                         Image(systemName: "house.fill")
-                        Text("Home")
+                        Text(NSLocalizedString("tab_home", comment: "Home"))
                     }.tag(0)
                 Shopping()
                     .tabItem {
                         Image(systemName: "cart.fill")
-                        Text("Shop")
+                        Text(NSLocalizedString("tab_shop", comment: "Shop"))
                     }.tag(1)
                 FavoriteView()
                     .tabItem {
                         Image(systemName: "heart.fill")
-                        Text("Favorite")
+                        Text(NSLocalizedString("tab_favorite", comment: "Favorite"))
                     }.tag(2)
                 BagView()
                     .tabItem {
                         Image(systemName: "bag.fill")
-                        Text("Cart")
+                        Text(NSLocalizedString("tab_cart", comment: "Cart"))
                     }.tag(3)
                 ProfileView()
                     .tabItem {
                         Image(systemName: "ellipsis.circle.fill")
-                        Text("More")
+                        Text(NSLocalizedString("tab_more", comment: "More"))
                     }.tag(4)
             }
         }
-        .accentColor(Color.init(hex: "DB3022"))
+        .accentColor(Constants.AppColor.accentTabColor)
         .navigationBarTitle("", displayMode: .inline)
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)

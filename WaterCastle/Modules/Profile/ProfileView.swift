@@ -1,4 +1,3 @@
-
 import SwiftUI
 import Combine
 
@@ -43,8 +42,14 @@ struct ProfileView: View {
                 
                 ScrollView(.vertical, showsIndicators: false, content: {
                     VStack(spacing: 10) {
-                        ForEach(self.arrProfile, id: \.id) { profile in
-                            ProfileRow(profile: profile)
+                        ForEach(self.arrProfile, id: \ .id) { profile in
+                            if profile.title == "Store Settings" {
+                                NavigationLink(destination: SettingsView(settings: CompanySettingsManager.shared.settings)) {
+                                    ProfileRow(profile: profile)
+                                }
+                            } else {
+                                ProfileRow(profile: profile)
+                            }
                         }
                     }
                     .padding(.horizontal, 15)

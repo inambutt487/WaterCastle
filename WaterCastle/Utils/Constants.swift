@@ -6,13 +6,16 @@ enum Constants {
         static let primaryBlack = Color.init(hex: "07A9F0")
         static let secondaryBlack = Color.init(hex: "44C4FC")
         static let lightGrayColor = Color.init(hex: "F9F9F9")
-        static let backgroundColor = Color.init(hex: "D7F2FC")
+        static let backgroundColor = Color.init(hex: "FFFFFF")
         static let primaryRed = Color.init(hex: "CB2D3E")
         static let secondaryRed = Color.init(hex: "EF473A")
         static let gradientRedHorizontal = LinearGradient(gradient: Gradient(colors: [Color.init(hex: "CB2D3E"), Color.init(hex: "EF473A")]), startPoint: .leading, endPoint: .trailing)
         static let gradientRedVertical = LinearGradient(gradient: Gradient(colors: [Color.init(hex: "CB2D3E"), Color.init(hex: "EF473A")]), startPoint: .bottom, endPoint: .top)
         static let shadowColor = Color.init(hex: "dddddd")
         static let lightGreen = Color.init(hex: "e8fbe8")
+        static let accentTabColor = Color.init(hex: "DB3022") // For tab accent
+        static let grayText = Color.init(hex: "bbbbbb") // For trash icon
+        static let discountGreen = Color.init(hex: "036440") // For discount text
     }
     
     struct AppFont {
@@ -25,8 +28,10 @@ enum Constants {
 
     // MARK: - API URLs
     enum API {
-        static let baseURL = "https://api.example.com"
+        static let baseURL = "https://fgstg.berain.com.sa/berain_oms/api/v4"
         static let productsEndpoint = "/products"
+        static let companySettingsEndpoint = "/companysetting"
+        static let companySettingsAuthKey = "060fac9a80afec9b95eb292ad884c5f5"
     }
     
     // MARK: - UI Constants
