@@ -1,17 +1,27 @@
-
 import SwiftUI
 import PartialSheet
 
+class ShopViewModel: ObservableObject {
+    @Published var products: [ProductData] = []
+    @Published var isLoading = false
+    @Published var errorMessage: String? = nil
+    
+    func fetchProducts() {
+        isLoading = true
+        Task {
+           
+        }
+    }
+}
+
 struct ShopView: View {
-    
-    let arrCloth = Product.all()
-    
+    @StateObject private var viewModel = ShopViewModel()
     @State private var isModalPresented: Bool = false
     @State private var sortedBy: String = "Price: lowest to high"
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
     fileprivate func NavigationBarView() -> some View {
-        return HStack {
+        HStack {
             Text("")
         }
         .frame(width: UIScreen.main.bounds.width, height: 45)
@@ -46,9 +56,7 @@ struct ShopView: View {
                         .foregroundColor(.white)
                         .font(.footnote)
                         .cornerRadius(15)
-                        
                         Spacer()
-                        
                         Button(action: {
                             print("Tapped on filter")
                         }) {
@@ -58,19 +66,26 @@ struct ShopView: View {
                         .font(.body)
                     }
                     .padding(.init(top: 15, leading: 10, bottom: 0, trailing: 10))
-                    
-                    List(self.arrCloth) { cloth in
-                        ItemCellTypeTwo(cloth: cloth)
+                    if viewModel.isLoading {
+                        ProgressView()
+                    } else if let error = viewModel.errorMessage {
+                        Text(error).foregroundColor(.red)
+                    } else {
+                        List(viewModel.products, id: \ .id) { product in
+                            ItemCellTypeTwo(product: product)
+                        }
+                        .background(Color.init(hex: "f9f9f9"))
+                        .padding(.horizontal, -5)
                     }
-                    .background(Color.init(hex: "f9f9f9"))
-                    .padding(.horizontal, -5)
                 }
             }
             .navigationBarTitle(Text(""), displayMode: .inline)
             .navigationBarHidden(true)
             .navigationBarBackButtonHidden(true)
+            .onAppear {
+                viewModel.fetchProducts()
+            }
         }
-            
         .partialSheet(isPresented: $isModalPresented) {
             VStack {
                 Text("Sort By")
@@ -151,50 +166,49 @@ struct ShopView_Previews: PreviewProvider {
 }
 
 struct ItemCellTypeTwo: View {
-    
-    let cloth: Product
-    
+    let product: ProductData
     var body: some View {
-        
         ZStack() {
             Rectangle()
                 .foregroundColor(.white)
                 .cornerRadius(5)
                 .shadow(color: Color.init(hex: "dddddd"), radius: 2, x: 0.8, y: 0.8)
-            
             HStack() {
-                Image(cloth.imageURL)
-                    .resizable()
+                if let firstImg = product.img.first {
+                    AsyncImage(url: URL(string: firstImg.imagePath)) { image in
+                        image.resizable()
+                    } placeholder: {
+                        Color.gray.opacity(0.2)
+                    }
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 130, height: 170)
                     .cornerRadius(5)
-                
+                }
                 VStack(alignment: .leading) {
-                    Text(cloth.name)
+                    Text(product.nameEn ?? "")
                         .font(.headline)
                         .lineLimit(2)
-                    Text(cloth.company)
+                    Text(product.material ?? "")
                         .font(.footnote)
                         .foregroundColor(.gray)
                         .padding([.top], 5)
                     Spacer()
                     HStack {
                         RatingView(rating: .constant(4))
-                        Text("(\(cloth.rating))")
+                        Text("(")
                             .font(.footnote)
                             .foregroundColor(.gray)
                     }
-                    
                     HStack {
-                        Text("$\(cloth.price)")
+                        Text("SAR \(product.price ?? "")")
                             .font(.headline)
                             .foregroundColor(Color.black)
                             .bold()
                             .padding(.top, 5)
                         Spacer()
                         Button(action: {}) {
-                            Image(systemName: cloth.isFavorite == true ? "heart.fill" : "heart")
-                                .foregroundColor(cloth.isFavorite == true ? .red :.gray)
+                            Image(systemName: "heart")
+                                .foregroundColor(.gray)
                                 .frame(width: 40, height: 40)
                                 .background(Color.white)
                         }

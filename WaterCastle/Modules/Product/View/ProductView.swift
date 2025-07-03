@@ -1,29 +1,30 @@
-
-
 import SwiftUI
 
 struct ProductView: View {
     
-    var cloth: Product
+    var row: ProductData
+    var promotions: [Promotion] = []
     @State var show = false
+    @State var quantity: Int = 1
+    var onProductTap: ((ProductData, [Promotion], Int) -> Void)? = nil
     
     fileprivate func TopLabel() -> some View {
-        return Text(cloth.type == "new" ? "New" : "-20%")
+        let isNew = row.beforeDiscount == row.price
+        return Text(isNew ? "New" : "-")
             .font(.custom(Constants.AppFont.semiBoldFont, size: 13))
             .padding([.trailing, .leading], 8)
             .frame(height: 25)
-            .background(cloth.type == "new" ? Constants.AppColor.primaryBlack : Color.init(hex: "DB3022"))
+            .background(isNew ? Constants.AppColor.primaryBlack : Color.init(hex: "DB3022"))
             .cornerRadius(12.5)
             .foregroundColor(.white)
-        //.shadow(color: Color.init(hex: "444444"), radius: 1, x: 0.5, y: 0.5)
     }
     
     fileprivate func FevoriteButton() -> some View {
         return Button(action: {
-            print("Name: \(self.cloth.name)")
+            print("Name: \(self.row.nameEn ?? "")")
         }) {
-            Image(systemName: cloth.isFavorite == true ? "heart.fill" : "heart")
-                .foregroundColor(cloth.isFavorite == true ? .red :.gray)
+            Image(systemName: "heart")
+                .foregroundColor(.gray)
                 .frame(width: 30, height: 30)
                 .background(Color.white)
         }
@@ -33,56 +34,201 @@ struct ProductView: View {
     }
     
     var body: some View {
+        
+        let isPromo = row.isPromoted(using: promotions)
+        let matchedPromo = row.matchedPromotion(from: promotions)
+        
         ZStack {
-            NavigationLink(destination: ProductDetailsView(show: self.$show, cloth: cloth), isActive: self.$show) {
-                Text("")
-            }
-            VStack(alignment: .leading) {
-                Image(cloth.imageURL).renderingMode(.original)
-                    .resizable()
+            VStack(alignment: .leading, spacing: 5) {
+                // Image or Promotion Image
+                let promoImages = row.promotionImages(from: promotions)
+                if let promoImage = promoImages.first {
+                    let promoURL = Constants.API.imageBaseURL + promoImage
+                    AsyncImage(url: URL(string: promoURL)) { image in
+                        image.resizable()
+                    } placeholder: {
+                        Color.gray.opacity(0.2)
+                    }
                     .aspectRatio(contentMode: .fill)
                     .frame(width: UIScreen.main.bounds.width / 2 - 40, height: 190)
-                    .padding(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .cornerRadius(5)
+                    .overlay(
+                        VStack {
+                            if isPromo {
+                                            Text("PROMOTION")
+                                                .font(.headline)
+                                                .foregroundColor(.red)
+
+                                            if let info = matchedPromo?.info?.textEn {
+                                                Text(info)
+                                                    .font(.subheadline)
+                                                    .padding(.top, 4)
+                                            }
+
+                                            
+                                        }
+
+                                        Text(row.nameEn ?? "")
+                                        Text("SAR \(row.displayedPrice)")
+                            Spacer()
+                            FevoriteButton()
+                                .padding([.top, .trailing], 5)
+                        },
+                        alignment: .topTrailing
+                    )
+                } else if let firstImg = row.img.first {
+                    let fullURL = Constants.API.imageBaseURL + firstImg.imagePath
+                    AsyncImage(url: URL(string: fullURL)) { image in
+                        image.resizable()
+                    } placeholder: {
+                        Color.gray.opacity(0.2)
+                    }
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: UIScreen.main.bounds.width / 2 - 40, height: 190)
                     .cornerRadius(5)
                     .overlay(
                         FevoriteButton()
-                            .padding([.top, .trailing], 5)
-                        , alignment: .topTrailing
+                            .padding([.top, .trailing], 5),
+                        alignment: .topTrailing
                     )
-                Text(cloth.company)
+                }
+
+                // Product Name
+                Text(row.nameEn ?? "")
                     .font(.custom(Constants.AppFont.semiBoldFont, size: 14))
                     .foregroundColor(Constants.AppColor.secondaryBlack)
-                    .padding([.horizontal], 5)
-                Text(cloth.name)
+                    .padding(.horizontal, 5)
+
+                // Description
+                Text(row.descriptionEn ?? "")
                     .font(.custom(Constants.AppFont.regularFont, size: 11))
                     .foregroundColor(Constants.AppColor.secondaryBlack)
-                    .padding([.horizontal], 5)
-                HStack {
-                    Text("₹\(cloth.price - (cloth.price * cloth.discount)/100)")
-                        .font(.custom(Constants.AppFont.semiBoldFont, size: 13))
-                        .foregroundColor(Constants.AppColor.primaryBlack)
-                    Text("₹\(cloth.price)")
-                        .font(.custom(Constants.AppFont.regularFont, size: 11))
-                        .foregroundColor(.gray) .strikethrough()
-                    Text(cloth.type == "new" ? "" : "\(cloth.discount)% OFF")
-                        .font(.custom(Constants.AppFont.regularFont, size: 11))
-                        .foregroundColor(Constants.AppColor.secondaryRed)
+                    .padding(.horizontal, 5)
+
+                // Price
+                Text("SAR \(row.displayedPrice)")
+                    .font(.custom(Constants.AppFont.semiBoldFont, size: 13))
+                    .foregroundColor(Constants.AppColor.primaryBlack)
+                    .padding(.horizontal, 5)
+
+                // Quantity Selector
+                HStack(spacing: 10) {
+                    Button(action: { if quantity > 1 { quantity -= 1 } }) {
+                        Image(systemName: "minus.circle.fill")
+                            .foregroundColor(.gray)
+                    }
+                    TextField("Qty", value: $quantity, formatter: NumberFormatter())
+                        .frame(width: 40)
+                        .multilineTextAlignment(.center)
+                        .keyboardType(.numberPad)
+                    Button(action: { quantity += 1 }) {
+                        Image(systemName: "plus.circle.fill")
+                            .foregroundColor(.gray)
+                    }
                 }
-                .padding([.leading, .trailing], 5)
+                .padding(.horizontal, 5)
+
                 Spacer()
             }
-            .frame(width: 170, height: 255)
+            .frame(width: 170, height: 265)
             .background(Color.clear)
             .clipped()
             .onTapGesture {
-                self.show.toggle()
+                onProductTap?(row, promotions, quantity)
             }
         }
     }
+
 }
 
-struct ItemRow_Previews: PreviewProvider {
+struct Product_Previews: PreviewProvider {
     static var previews: some View {
-        ProductView(cloth: Product(name: "Printed Long Top", description: "Red floral print long top, has a round collar, full sleeves and available in different sizes for women.", imageURL: "redDress", price: 2399, company: "Rain & Rainbow", rating: 4, type: "sale", isFavorite: false, color: "Red", size: "S", discount: 40))
+        let sampleProduct = ProductData(
+            id: "1",
+            img: [
+                Img(productGalleryID: 1, productID: 1, imagePath: "https://via.placeholder.com/150", isDefault: 1)
+            ],
+            bottles: 1,
+            catAr: .plastic,
+            catEn: .plastic,
+            catKw: "Plastic",
+            price: "30",
+            priceVat: "35",
+            beforeDiscount: "40",
+            material: "Plastic",
+            unit: .car,
+            nameAr: "منتج",
+            nameEn: "Product",
+            nameKw: "منتج",
+            descriptionAr: "تفاصيل المنتج",
+            descriptionEn: "Product Description",
+            descriptionKw: "تفاصيل المنتج",
+            productSortApp: "sale",
+            categoryID: "123",
+            status: "active",
+            stock: "100",
+            tagsEn: [],
+            tagsAr: []
+        )
+
+        let mockPromotion = Promotion(
+            promotionID: 101,
+            title: nil,
+            productID: ["1"].compactMap { Int($0) },
+            minQuantity: 1,
+            addOn: nil,
+            cityID: nil,
+            startDate: nil,
+            endDate: nil,
+            imageWebEn: nil,
+            imageWebAr: nil,
+            imageWebKw: nil,
+            imageMobileEn: "https://via.placeholder.com/300x200",
+            imageMobileAr: nil,
+            imageMobileKw: nil,
+            promotionLevel: "product",
+            isOffer: 1,
+            isFootball: 0,
+            link: nil,
+            clubIDS: nil,
+            enableWithPromo: 1,
+            status: 1,
+            sort: 0,
+            info: Info(
+                textEn: "10% OFF",
+                textAr: "خصم 10%",
+                imageEn: nil,
+                imageAr: nil,
+                focTitleEn: nil,
+                focTitleAr: nil
+            ),
+            createdAt: nil,
+            rangeLimit: nil,
+            channelID: nil,
+            groupID: nil,
+            promotionType: nil,
+            onProducts: nil,
+            locations: nil,
+            giftProducts: nil,
+            webImage: nil,
+            mobileImage: nil,
+            updatedAt: nil,
+            countryID: nil,
+            multiFoc: nil,
+            isBanner: 0,
+            isDonation: 0,
+            quantity: 1,
+            infoEn: nil,
+            infoAr: nil,
+            infoKw: nil,
+            focProd: nil,
+            focItems: nil,
+            emptyFoc: nil
+        )
+
+        return ProductView(row: sampleProduct, promotions: [mockPromotion])
+            .previewLayout(.sizeThatFits)
+            .padding()
     }
 }
+

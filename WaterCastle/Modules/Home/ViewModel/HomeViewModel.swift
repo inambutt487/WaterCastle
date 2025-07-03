@@ -7,33 +7,36 @@
 import Foundation
 
 class HomeViewModel: ObservableObject {
-    @Published var products: [ProductResponse] = []
-    @Published var isLoading = false
+    @Published var products: [ProductData] = []
+    @Published var promotions: [Promotion] = []
+    @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
 
-    func fetchProducts() {
-        isLoading = true
-        errorMessage = nil
-
-        Task {
-            let result = await ProductService.shared.fetchProductsByLocation(
-                addType: "1",
-                areaId: "2031",
-                countryId: "2229",
-                customerId: "1126662",
-                fcmToken: "IQAAAACy0crjAADn_0qqajU6fmYk_IooNpvuQAlncHCzP67z2zr43WKmRA4V-lx8oOt_nvwrz6A8aKvX0TiU75DY-UgQneFHXj8a7nsx0rKSR2Mfqg"
-            )
-
-            await MainActor.run {
-                self.isLoading = false
-                switch result {
-                case .success(let response):
-                    self.products = response // ✅ Use the array directly
-                case .failure(let error):
-                    self.errorMessage = error.localizedDescription
-                }
-            }
+    @MainActor
+    func fetchProductsbyLoc() async {
+        self.isLoading = true
+        let request = ProductListRequest(
+            add_type: "1",
+            area_id: "2031",
+            country_id: "2229",
+            customer_id: "1126662",
+            fcm_token: "IQAAAACy0crjAADn_0qqajU6fmYk_IooNpvuQAlncHCzP67z2zr43WKmRA4V-lx8oOt_nvwrz6A8aKvX0TiU75DY-UgQneFHXj8a7nsx0rKSR2Mfqg"
+        )
+        let headers = [
+            "Authorization": Constants.API.companySettingsAuthKey
+        ]
+        let result: Result<ProductResponse, Error> = await APIService.shared.postRequest(
+            endpoint: Constants.API.getProductsByLocEndpoint,
+            body: request,
+            headers: headers
+        )
+        self.isLoading = false
+        switch result {
+        case .success(let decoded):
+            self.products = decoded.rows
+            self.promotions = decoded.promotions ?? []
+        case .failure(let error):
+            self.errorMessage = error.localizedDescription
         }
     }
-
 }

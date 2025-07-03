@@ -1,6 +1,15 @@
+//
+//  LoginViewModel.swift
+//  WaterCastle
+//
+//  Created by Mac on 02/07/2025.
+//
+
+
 import Foundation
 import Combine
 
+@MainActor
 class LoginViewModel: ObservableObject {
     @Published var phone: String = ""
     @Published var otp: String = ""
@@ -14,8 +23,8 @@ class LoginViewModel: ObservableObject {
     func saveAuthKey(_ key: String) {
         Constants.API.companySettingsAuthKey = key
     }
-
-    func login(skKey: String) async {
+    
+    func login(skKey: String) async -> Result<LoginResponse, Error> {
         isLoading = true
         errorMessage = nil
         let request = LoginRequest(
@@ -29,7 +38,7 @@ class LoginViewModel: ObservableObject {
         ]
         let result: Result<LoginResponse, Error> = await APIService.shared.postRequest(
             endpoint: "/LoginRegister",
-            encodableBody: request,
+            body: request,
             headers: headers
         )
         isLoading = false
@@ -40,9 +49,10 @@ class LoginViewModel: ObservableObject {
         case .failure(let error):
             self.errorMessage = error.localizedDescription
         }
+        return result
     }
     
-    func verifyOTP() async {
+    func verifyOTP() async -> Result<OTPResponse, Error> {
         isLoading = true
         errorMessage = nil
         let request = OTPRequest(
@@ -53,20 +63,22 @@ class LoginViewModel: ObservableObject {
             "Authorization": Constants.API.companySettingsAuthKey
         ]
         let result: Result<OTPResponse, Error> = await APIService.shared.postRequest(
-            endpoint: "/CheckUserOtp",
-            encodableBody: request,
+            endpoint: Constants.API.verifyOTPEndpoint,
+            body: request,
             headers: headers
         )
         isLoading = false
         switch result {
         case .success(let response):
             self.otpResponse = response
-            if let user = response.user?.first, let authKey = user.authKey {
+            if let user = response.user?.first, let authKey = user.authKey, !authKey.isEmpty {
                 saveAuthKey(authKey)
-                CompanySettingsManager.shared.settings = user // Save user as singleton
+            } else if let token = response.getToken?.auth, !token.isEmpty {
+                saveAuthKey(token)
             }
         case .failure(let error):
             self.errorMessage = error.localizedDescription
         }
+        return result
     }
 }

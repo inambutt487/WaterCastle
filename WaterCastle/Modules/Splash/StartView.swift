@@ -2,8 +2,11 @@ import SwiftUI
 
 struct StartView: View {
     @StateObject private var viewModel = StartViewModel()
+    @StateObject private var introVM = IntroSlidesViewModel()
+    
     @Environment(\.locale) var locale
     @State private var navigateToMain = false
+    @State private var showIntro = false
 
     var body: some View {
         VStack {
@@ -41,15 +44,23 @@ struct StartView: View {
             Spacer()
         }
         .onAppear {
-            print("[StartView] API call started...")
-            Task {
-                await viewModel.fetchCompanySettings()
-            }
-        }
-        .background(Constants.AppColor.backgroundColor.ignoresSafeArea())
-        .fullScreenCover(isPresented: $navigateToMain) {
-            MainController()
-        }
+                    if !UserDefaults.standard.bool(forKey: "didShowIntro") {
+                        showIntro = true
+                    } else {
+                        Task { await viewModel.fetchCompanySettings() }
+                    }
+                }
+                .background(Constants.AppColor.backgroundColor.ignoresSafeArea())
+                .fullScreenCover(isPresented: $showIntro, onDismiss: {
+                    UserDefaults.standard.set(true, forKey: "didShowIntro")
+                    Task { await viewModel.fetchCompanySettings() }
+                }) {
+                    IntroSlidesView(viewModel: introVM, isFinished: $showIntro)
+                }
+                .fullScreenCover(isPresented: $navigateToMain) {
+                    MainController()
+                }
+        
     }
 
 }

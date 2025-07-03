@@ -104,3 +104,26 @@ struct PageControl: View {
         .padding(10)
     }
 }
+
+#if DEBUG
+struct PagingView_Previews: PreviewProvider {
+    @State static var index = 0
+    static var previews: some View {
+        PagingView(index: $index, maxIndex: 2) {
+            ForEach(0..<3) { i in
+                ZStack {
+                    Rectangle()
+                        .fill(i == 0 ? Color.red : (i == 1 ? Color.green : Color.blue))
+                    Text("Page \(i + 1)")
+                        .font(.largeTitle)
+                        .foregroundColor(.white)
+                }
+            }
+        }
+        .frame(height: 200)
+        .padding()
+        .background(Color.gray.opacity(0.2))
+    }
+}
+#endif
+

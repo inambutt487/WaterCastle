@@ -1,3 +1,11 @@
+//
+//  ProductPromotion.swift
+//  WaterCastle
+//
+//  Created by Mac on 26/06/2025.
+//
+
+
 struct ProductPromotion: Codable {
     let productID: String
     let titleEn: String?

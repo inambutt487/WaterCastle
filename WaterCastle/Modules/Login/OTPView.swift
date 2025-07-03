@@ -1,9 +1,16 @@
+//
+//  OTPView.swift
+//  WaterCastle
+//
+//  Created by Mac on 02/07/2025.
+//
 import SwiftUI
 
 struct OTPView: View {
     @ObservedObject var viewModel: LoginViewModel
     @Environment(\.presentationMode) var presentationMode
     var onVerifySuccess: (() -> Void)?
+    @State private var showShop = false
     
     var body: some View {
         VStack(spacing: 24) {
@@ -57,7 +64,13 @@ struct OTPView: View {
             
             // Verify Button
             Button(action: {
-                Task { await viewModel.verifyOTP() }
+                Task {
+                    let result = await viewModel.verifyOTP()
+                    if case .success(let response) = result, response.code == 200 {
+                        showShop = true
+                        onVerifySuccess?()
+                    }
+                }
             }) {
                 Text("Verify")
                     .frame(maxWidth: .infinity)
@@ -77,9 +90,13 @@ struct OTPView: View {
             Spacer()
         }
         .onChange(of: viewModel.otpResponse) { response in
-            if let response = response, response.code == 200 {
+            if let response = response, response.code == 200, Constants.API.companySettingsAuthKey != "060fac9a80afec9b95eb292ad884c5f5" {
+                showShop = true
                 onVerifySuccess?()
             }
+        }
+        .fullScreenCover(isPresented: $showShop) {
+            ShopView()
         }
     }
 }

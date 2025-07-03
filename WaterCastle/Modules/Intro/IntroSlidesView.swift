@@ -1,3 +1,11 @@
+//
+//  IntroSlidesView.swift
+//  WaterCastle
+//
+//  Created by Mac on 02/07/2025.
+//
+
+
 import SwiftUI
 
 struct IntroSlidesView: View {
@@ -26,8 +34,8 @@ struct IntroSlidesView: View {
                             .padding(.horizontal)
                         Spacer()
                         if index == viewModel.slides.count - 1 {
-                            Button("Finish") {
-                                isFinished = true
+                            Button(NSLocalizedString("button_finish", comment: "Finish")) {
+                                isFinished = false
                             }
                             .font(.headline)
                             .padding()

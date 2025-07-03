@@ -2,23 +2,9 @@ import Foundation
 
 @MainActor
 class ProductViewModel: BaseViewModel {
-    @Published var products: [Product] = []
+    @Published var products: [ProductResponse] = []
     
-    func loadProducts() {
-        isLoading = true
-        clearError()
-        
-        Task {
-            let result = await ProductService.shared.fetchProducts()
-            
-            switch result {
-            case .success(let products):
-                self.products = products
-            case .failure(let error):
-                handleError(error)
-            }
-            
-            isLoading = false
-        }
+    func addToCart(request: AddToCartRequest) async -> Result<OrderResponse, Error> {
+        return await ProductService.shared.addToCart(request: request)
     }
 } 

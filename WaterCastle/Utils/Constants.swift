@@ -29,9 +29,15 @@ enum Constants {
     // MARK: - API URLs
     enum API {
         static let baseURL = "https://fgstg.berain.com.sa/berain_oms/api/v4"
+        static var companySettingsAuthKey = "060fac9a80afec9b95eb292ad884c5f5"
+        
+        static let imageBaseURL = "https://cdn.berain.com.sa"
+
         static let productsEndpoint = "/products"
         static let companySettingsEndpoint = "/companysetting"
-        static let companySettingsAuthKey = "060fac9a80afec9b95eb292ad884c5f5"
+        static let getProductsByLocEndpoint = "/get_products_byloc"
+        static let loginEndpoint = "/LoginRegister"
+        static let verifyOTPEndpoint = "/CheckUserOtp"
     }
     
     // MARK: - UI Constants
