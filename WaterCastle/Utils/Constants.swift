@@ -29,7 +29,18 @@ enum Constants {
     // MARK: - API URLs
     enum API {
         static let baseURL = "https://fgstg.berain.com.sa/berain_oms/api/v4"
-        static var companySettingsAuthKey = "060fac9a80afec9b95eb292ad884c5f5"
+        
+        static var companySettingsAuthKey: String {
+            get {
+                UserManager.shared.companySettingsAuthKey.isEmpty
+                    ? "060fac9a80afec9b95eb292ad884c5f5"
+                    : UserManager.shared.companySettingsAuthKey
+            }
+            set {
+                UserManager.shared.companySettingsAuthKey = newValue
+            }
+        }
+
         
         static let imageBaseURL = "https://cdn.berain.com.sa"
 
@@ -38,6 +49,13 @@ enum Constants {
         static let getProductsByLocEndpoint = "/get_products_byloc"
         static let loginEndpoint = "/LoginRegister"
         static let verifyOTPEndpoint = "/CheckUserOtp"
+
+        // Centralized API hardcoded values
+        static let defaultAreaId = "3444"
+        static let defaultAddressId = "1340951"
+        static let defaultClientId = "1126662"
+        static let defaultCountryId = "2229"
+        static let defaultFCMToken = "eESkqEwi0E12oznnvCvjJj:APA91bEbahCFSJzV8Xxl6mz6lXjJyI6cpQxQJncLxmf2jgT0enV5tbcmTBH58pSs9QstDEQLUQ_j4PMSZzvURFbnACb1uM9lScPmzq0IkuJQapJkQEkZzuM"
     }
     
     // MARK: - UI Constants

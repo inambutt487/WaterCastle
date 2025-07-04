@@ -42,4 +42,41 @@ struct LocalDatabase {
         }
         return nil
     }
+
+    // MARK: - Auth Key
+    static let authKey = "companySettingsAuthKey"
+    static func saveAuthKey(_ key: String) {
+        UserDefaults.standard.set(key, forKey: authKey)
+    }
+    static func loadAuthKey() -> String? {
+        UserDefaults.standard.string(forKey: authKey)
+    }
+
+    // MARK: - ProductData Cache
+    static let productCacheKey = "cachedProducts"
+    static func saveProducts(_ products: [ProductData]) {
+        if let data = try? JSONEncoder().encode(products) {
+            UserDefaults.standard.set(data, forKey: productCacheKey)
+        }
+    }
+    static func loadProducts() -> [ProductData]? {
+        if let data = UserDefaults.standard.data(forKey: productCacheKey) {
+            return try? JSONDecoder().decode([ProductData].self, from: data)
+        }
+        return nil
+    }
+
+    // MARK: - Promotion Cache
+    static let promotionCacheKey = "cachedPromotions"
+    static func savePromotions(_ promotions: [Promotion]) {
+        if let data = try? JSONEncoder().encode(promotions) {
+            UserDefaults.standard.set(data, forKey: promotionCacheKey)
+        }
+    }
+    static func loadPromotions() -> [Promotion]? {
+        if let data = UserDefaults.standard.data(forKey: promotionCacheKey) {
+            return try? JSONDecoder().decode([Promotion].self, from: data)
+        }
+        return nil;
+    }
 }

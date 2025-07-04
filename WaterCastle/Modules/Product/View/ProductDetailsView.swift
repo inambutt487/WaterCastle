@@ -20,6 +20,7 @@ struct ProductDetailsView: View {
     @State private var didLoadCart = false
     @State private var navigateToShop = false
     @State private var showLogin = false
+    @State private var pendingAddToCart = false
 
     @StateObject private var loginVM = LoginViewModel()
     @StateObject private var productVM = ProductViewModel()
@@ -73,15 +74,15 @@ struct ProductDetailsView: View {
             .aspectRatio(4/3, contentMode: .fit)
         }
 
-    private func addToCart() {
+    private func addToCartAndNavigate() {
         isLoading = true
         apiResult = nil
         let request = AddToCartRequest(
             add_type: "1",
-            area_id: "3444",
-            address_id: "1340951",
-            client_id: "1126662",
-            country_id: "2229",
+            area_id: Constants.API.defaultAreaId,
+            address_id: Constants.API.defaultAddressId,
+            client_id: Constants.API.defaultClientId,
+            country_id: Constants.API.defaultCountryId,
             cart: [
                 CartItem(
                     product_price: product.price ?? "0",
@@ -92,7 +93,7 @@ struct ProductDetailsView: View {
                     productTitleEN: product.nameEn ?? ""
                 )
             ],
-            fcmToken: "eESkqEwi0E12oznnvCvjJj:APA91bEbahCFSJzV8Xxl6mz6lXjJyI6cpQxQJncLxmf2jgT0enV5tbcmTBH58pSs9QstDEQLUQ_j4PMSZzvURFbnACb1uM9lScPmzq0IkuJQapJkQEkZzuM"
+            fcmToken: Constants.API.defaultFCMToken
         )
         Task {
             let result = await productVM.addToCart(request: request)
@@ -101,6 +102,17 @@ struct ProductDetailsView: View {
             case .success(let order):
                 self.orderResponse = order
                 self.apiResult = nil
+                // Cache product and promotions
+                var cachedProducts = LocalDatabase.loadProducts() ?? []
+                if !cachedProducts.contains(where: { $0.id == product.id }) {
+                    cachedProducts.append(product)
+                    LocalDatabase.saveProducts(cachedProducts)
+                }
+                if !promotions.isEmpty {
+                    LocalDatabase.savePromotions(promotions)
+                }
+                // Navigate to ShopView
+                navigateToShop = true
             case .failure(let error):
                 apiResult = error.localizedDescription
             }
@@ -110,8 +122,9 @@ struct ProductDetailsView: View {
     fileprivate func AddToCartButton() -> some View {
         Button(action: {
             if UserManager.shared.user != nil {
-                addToCart()
+                addToCartAndNavigate()
             } else {
+                pendingAddToCart = true
                 showLogin = true
             }
         }) {
@@ -129,13 +142,22 @@ struct ProductDetailsView: View {
             }
         }
         .padding(.horizontal, 0)
-        .disabled(isLoading || orderResponse == nil)
-        .fullScreenCover(isPresented: $showLogin) {
+        .disabled(isLoading)
+        .fullScreenCover(isPresented: $showLogin, onDismiss: {
+            if pendingAddToCart && UserManager.shared.user != nil {
+                pendingAddToCart = false
+                addToCartAndNavigate()
+            }
+        }) {
             LoginView(viewModel: loginVM, onLoginSuccess: {
                 showLogin = false
-                navigateToShop = true
             })
         }
+        .background(
+            NavigationLink(destination: ShopView(), isActive: $navigateToShop) {
+                EmptyView()
+            }.hidden()
+        )
     }
 
     var body: some View {
@@ -367,26 +389,6 @@ struct ProductDetailsView: View {
                             }
                             .padding(.horizontal, 15)
                         }
-
-//                        // Product Details Section
-//                        VStack(alignment: .leading) {
-//                            Text("Product Details")
-//                                .font(.custom(Constants.AppFont.semiBoldFont, size: 15))
-//                                .foregroundColor(Constants.AppColor.secondaryBlack)
-//                                .padding(.top, 10)
-//                                .padding(.horizontal, 15)
-//
-//                            Text(product.descriptionEn ?? "")
-//                                .font(.custom(Constants.AppFont.lightFont, size: 13))
-//                                .foregroundColor(Constants.AppColor.secondaryBlack)
-//                                .padding(.vertical, 8)
-//                                .lineSpacing(2)
-//                                .padding(.horizontal, 15)
-//                                .lineLimit(nil)
-//                        }
-//                        .frame(minWidth: 0, maxWidth: .infinity)
-//                        .background(Color.white)
-//                        .padding(.top, -3)
                     }
                 }
             }
@@ -399,7 +401,7 @@ struct ProductDetailsView: View {
         .onAppear {
             if !didLoadCart {
                 didLoadCart = true
-                addToCart()
+                addToCartAndNavigate()
             }
         }
     }
