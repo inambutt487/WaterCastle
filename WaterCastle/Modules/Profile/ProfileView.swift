@@ -5,7 +5,13 @@ struct ProfileView: View {
     
     @State var selection: Int? = nil
     let arrProfile = ProfileModel.all()
-    
+    @State private var isAddressSheetPresented = false
+    @State private var addressList: [Address] = LocalDatabase.loadAddresses() ?? []
+    @State private var selectedAddress: Address? = LocalDatabase.loadHomeAddress()
+    @State private var didLogout = false
+    @EnvironmentObject var nav: AppNavigationState
+    @State private var showSettings = false
+
     fileprivate func NavigationBarView() -> some View {
         return HStack {
             Text("")
@@ -19,6 +25,7 @@ struct ProfileView: View {
     }
     
     var body: some View {
+        VStack(spacing: 0) {
         NavigationView {
             VStack(alignment: .leading) {
                 NavigationBarView()
@@ -30,10 +37,12 @@ struct ProfileView: View {
                         .clipShape(Circle())
                         .padding(.leading, 15)
                     VStack(alignment: .leading) {
-                        Text("Your Name")
+                            let user = UserManager.shared.user
+                            let name = (user?.first_name ?? user?.frist_name ?? "") + " " + (user?.last_name ?? "")
+                            Text(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Your Name" : name)
                             .font(.headline)
                             .bold()
-                        Text("youremail@gmail.com")
+                            Text(user?.email ?? "youremail@gmail.com")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }.padding(.horizontal, 5)
@@ -44,7 +53,9 @@ struct ProfileView: View {
                     VStack(spacing: 10) {
                         ForEach(self.arrProfile, id: \ .id) { profile in
                             if profile.title == "Store Settings" {
-                                NavigationLink(destination: SettingsView(settings: CompanySettingsManager.shared.settings)) {
+                                Button(action: {
+                                    showSettings = true
+                                }) {
                                     ProfileRow(profile: profile)
                                 }
                             } else {
@@ -56,10 +67,117 @@ struct ProfileView: View {
                 })
                 
                 Spacer()
+                    // User Home Address Section
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Home Address")
+                            .font(.headline)
+                        if let address = selectedAddress {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(address.add_name ?? "-")
+                                    .font(.subheadline)
+                                Text(address.add_detail ?? "-")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                        } else {
+                            Text("No home address set.")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        HStack {
+                            Button(action: {
+                                addressList = LocalDatabase.loadAddresses() ?? []
+                                isAddressSheetPresented = true
+                            }) {
+                                Text("Change Address")
+                                    .font(.caption)
+                                    .foregroundColor(.blue)
+                            }
+                            Spacer()
+                            Button(action: {
+                                // Placeholder for Add New Address feature
+                            }) {
+                                Text("Add New Address")
+                                    .font(.caption)
+                                    .foregroundColor(.green)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 15)
+                    .padding(.vertical, 8)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
+                    .sheet(isPresented: $isAddressSheetPresented) {
+                        VStack(alignment: .leading) {
+                            Text("Select Address")
+                                .font(.headline)
+                                .padding()
+                            Divider()
+                            ScrollView {
+                                VStack(alignment: .leading) {
+                                    ForEach(addressList, id: \ .add_id) { address in
+                                        Button(action: {
+                                            selectedAddress = address
+                                            LocalDatabase.saveHomeAddress(address)
+                                            isAddressSheetPresented = false
+                                        }) {
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text(address.add_name ?? "-")
+                                                    .font(.subheadline)
+                                                Text(address.add_detail ?? "-")
+                                                    .font(.caption)
+                                                    .foregroundColor(.gray)
+                                            }
+                                            .padding()
+                                            .frame(maxWidth: .infinity, alignment: .center)
+                                            .background(address.add_id == selectedAddress?.add_id ? Color.blue.opacity(0.15) : Color.gray.opacity(0.1))
+                                            .cornerRadius(8)
+                                        }
+                                        .padding(.horizontal)
+                                    }
+                                }
+                            }
+                            Spacer()
+                            Button("Close") {
+                                isAddressSheetPresented = false
+                            }
+                            .padding()
+                        }
+                    }
             }
             .navigationBarTitle(Text(""), displayMode: .inline)
             .navigationBarHidden(true)
             .navigationBarBackButtonHidden(true)
+                .background(
+                    NavigationLink(destination: MainController().navigationBarHidden(true), isActive: $didLogout) { EmptyView() }
+                        .hidden()
+                )
+            }
+            Spacer()
+            Button(action: {
+                // Clear user and addresses from LocalDatabase and UserManager
+                UserManager.shared.user = nil
+                UserManager.shared.companySettingsAuthKey = "060fac9a80afec9b95eb292ad884c5f5"
+                UserDefaults.standard.removeObject(forKey: LocalDatabase.userKey)
+                UserDefaults.standard.removeObject(forKey: LocalDatabase.addressesKey)
+                UserDefaults.standard.removeObject(forKey: LocalDatabase.homeAddressKey)
+                selectedAddress = nil
+                addressList = []
+                didLogout = true
+                nav.resetToLogin()
+            }) {
+                Text("Logout")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.red)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                    .padding(.horizontal, 15)
+                    .padding(.bottom, 20)
+            }
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
         }
     }
 }
@@ -67,6 +185,7 @@ struct ProfileView: View {
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
         ProfileView()
+            .environmentObject(AppNavigationState())
     }
 }
 

@@ -1,44 +1,40 @@
 import SwiftUI
 
 struct MainController: View {
-    
-    @State var selected = 0
-    @State private var showProductDetails = false
-    @State private var selectedProduct: ProductData? = nil
-    @State private var selectedPromotions: [Promotion] = []
-    @State private var selectedQuantity: Int = 1
-    
+    @EnvironmentObject var nav: AppNavigationState
+    @State private var showLogin: Bool = false
+
     var body: some View {
         ZStack {
-            Constants.AppColor.lightGrayColor
-                .edgesIgnoringSafeArea(.all)
-            if !showProductDetails {
-                TabView(selection: $selected) {
-                    HomeView(onProductTap: { product, promotions, quantity in
-                        self.selectedProduct = product
-                        self.selectedPromotions = promotions
-                        self.selectedQuantity = quantity
-                        self.showProductDetails = true
-                    })
-                        .tabItem {
-                            Image(systemName: "house.fill")
-                            Text(NSLocalizedString("tab_home", comment: "Home"))
-                        }.tag(0)
-                    Shopping()
-                        .tabItem {
-                            Image(systemName: "cart.fill")
-                            Text(NSLocalizedString("tab_shop", comment: "Shop"))
-                        }.tag(1)
-                    FavoriteView()
-                        .tabItem {
-                            Image(systemName: "heart.fill")
-                            Text(NSLocalizedString("tab_favorite", comment: "Favorite"))
-                        }.tag(2)
-                    BagView()
-                        .tabItem {
-                            Image(systemName: "bag.fill")
-                            Text(NSLocalizedString("tab_cart", comment: "Cart"))
-                        }.tag(3)
+            TabView {
+                HomeView(onProductTap: { product, promotions, quantity in
+                    if nav.isLoggedIn {
+                        nav.selectedProduct = product
+                        nav.selectedPromotions = promotions
+                        nav.selectedQuantity = quantity
+                        nav.showProductDetails = true
+                    } else {
+                        nav.selectedProduct = product
+                        nav.selectedPromotions = promotions
+                        nav.selectedQuantity = quantity
+                        showLogin = true
+                    }
+                })
+                .tabItem {
+                    Image(systemName: "house.fill")
+                    Text(NSLocalizedString("tab_home", comment: "Home"))
+                }.tag(0)
+                Shopping()
+                    .tabItem {
+                        Image(systemName: "cart.fill")
+                        Text(NSLocalizedString("tab_shop", comment: "Shop"))
+                    }.tag(1)
+                FavoriteView()
+                    .tabItem {
+                        Image(systemName: "heart.fill")
+                        Text(NSLocalizedString("tab_favorite", comment: "Favorite"))
+                    }.tag(2)
+                if nav.isLoggedIn {
                     ProfileView()
                         .tabItem {
                             Image(systemName: "ellipsis.circle.fill")
@@ -46,23 +42,36 @@ struct MainController: View {
                         }.tag(4)
                 }
             }
-        }
-        .fullScreenCover(isPresented: $showProductDetails, onDismiss: {
-            self.selectedProduct = nil
-        }) {
-            if let product = selectedProduct {
-                ProductDetailsView(show: $showProductDetails, product: product, promotions: selectedPromotions, quantity: $selectedQuantity)
+            .fullScreenCover(isPresented: $nav.showProductDetails, onDismiss: {
+                nav.showProductDetails = false
+                nav.selectedProduct = nil
+                nav.selectedPromotions = []
+                nav.selectedQuantity = 1
+            }) {
+                if let _ = nav.selectedProduct {
+                    ProductDetailsView()
+                        .environmentObject(nav)
+                }
+            }
+            .fullScreenCover(isPresented: $showLogin, onDismiss: {
+                // If login is successful, show product details
+                if nav.isLoggedIn {
+                    nav.showProductDetails = true
+                }
+            }) {
+                LoginView(onLoginSuccess: {
+                    nav.isLoggedIn = true
+                    showLogin = false
+                })
+                .environmentObject(nav)
             }
         }
-        .accentColor(Constants.AppColor.accentTabColor)
-        .navigationBarTitle("", displayMode: .inline)
-        .navigationBarHidden(true)
-        .navigationBarBackButtonHidden(true)
     }
 }
 
 struct TabBarView_Previews: PreviewProvider {
     static var previews: some View {
         MainController()
+            .environmentObject(AppNavigationState())
     }
 }

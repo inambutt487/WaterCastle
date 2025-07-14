@@ -5,7 +5,7 @@ struct ProductView: View {
     var row: ProductData
     var promotions: [Promotion] = []
     @State var show = false
-    @State var quantity: Int = 1
+    @State var quantity: Int = Int(CompanySettingsManager.shared.settings?.minQty ?? "") ?? 1
     var onProductTap: ((ProductData, [Promotion], Int) -> Void)? = nil
     
     fileprivate func TopLabel() -> some View {
@@ -93,18 +93,9 @@ struct ProductView: View {
                     )
                 }
 
+                let nameProduct  =  row.nameEn ?? ""
                 // Product Name
-                Text(row.nameEn ?? "")
-                    .font(.custom(Constants.AppFont.semiBoldFont, size: 14))
-                    .foregroundColor(Constants.AppColor.secondaryBlack)
-                    .padding(.horizontal, 5)
-
-                // Description
-                Text(row.descriptionEn ?? "")
-                    .font(.custom(Constants.AppFont.regularFont, size: 11))
-                    .foregroundColor(Constants.AppColor.secondaryBlack)
-                    .padding(.horizontal, 5)
-
+                NameWithDescriptionView(name: nameProduct)
                 // Price
                 Text("SAR \(row.displayedPrice)")
                     .font(.custom(Constants.AppFont.semiBoldFont, size: 13))
@@ -130,10 +121,12 @@ struct ProductView: View {
 
                 Spacer()
             }
-            .frame(width: 170, height: 265)
+            .frame(width: 170, height: 285)
             .background(Color.clear)
             .clipped()
             .onTapGesture {
+                let selection = CachedProductSelection(product: row, promotions: promotions, quantity: quantity)
+                LocalDatabase.saveProductSelection(selection)
                 onProductTap?(row, promotions, quantity)
             }
         }

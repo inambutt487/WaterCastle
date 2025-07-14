@@ -11,6 +11,7 @@ import SwiftUI
 struct IntroSlidesView: View {
     @ObservedObject var viewModel: IntroSlidesViewModel
     @Binding var isFinished: Bool
+    var onFinish: (() -> Void)? = nil
     @State private var currentPage = 0
 
     var body: some View {
@@ -35,7 +36,8 @@ struct IntroSlidesView: View {
                         Spacer()
                         if index == viewModel.slides.count - 1 {
                             Button(NSLocalizedString("button_finish", comment: "Finish")) {
-                                isFinished = false
+                                isFinished = true
+                                onFinish?()
                             }
                             .font(.headline)
                             .padding()

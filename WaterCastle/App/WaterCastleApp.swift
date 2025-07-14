@@ -9,7 +9,7 @@ import SwiftUI
 
 @main
 struct WaterCastleApp: App {
-    @State private var showSplash = true
+    @StateObject var nav = AppNavigationState()
 
     init() {
         URLProtocol.registerClass(NetworkLoggerProtocol.self)
@@ -17,10 +17,24 @@ struct WaterCastleApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if showSplash {
-                SplashScreenView(isActive: $showSplash)
-            } else {
-                StartView()
+            Group {
+                if nav.showSplash {
+                    SplashScreenView()
+                        .environmentObject(nav)
+                } else if !nav.hasSeenIntro {
+                    IntroSlidesView(
+                        viewModel: IntroSlidesViewModel(),
+                        isFinished: Binding(get: { nav.hasSeenIntro }, set: { nav.hasSeenIntro = $0 }),
+                        onFinish: { nav.markIntroSeen() }
+                    )
+                    .environmentObject(nav)
+                } else if !nav.hasSeenStartView {
+                    StartView()
+                        .environmentObject(nav)
+                } else {
+                    MainController()
+                        .environmentObject(nav)
+                }
             }
         }
     }

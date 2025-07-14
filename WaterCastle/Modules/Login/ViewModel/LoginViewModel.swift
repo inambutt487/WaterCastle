@@ -35,10 +35,10 @@ class LoginViewModel: ObservableObject {
             country_id: 2229
         )
         let headers = [
-            "Authorization": Constants.API.companySettingsAuthKey
+            "Authorization": Constants.API.companySettingsAuthKeyDefault
         ]
         let result: Result<LoginResponse, Error> = await APIService.shared.postRequest(
-            endpoint: "/LoginRegister",
+            endpoint: Constants.API.loginEndpoint,
             body: request,
             headers: headers
         )
@@ -46,11 +46,11 @@ class LoginViewModel: ObservableObject {
         switch result {
         case .success(let response):
             self.loginResponse = response
-            // No longer automatically show OTP here, OTPView will be presented
-            // if login is successful (e.g., via a navigation link or sheet)
-            // or if you want to explicitly control it from here, keep showOTP = true.
-            // For this setup, OTPView is typically pushed after login is confirmed.
-            break
+            print("response \(response.code)")
+            if response.code == 200 {
+                print("showOTP: true")
+                self.showOTP = true
+            }
         case .failure(let error):
             self.errorMessage = error.localizedDescription
         }
@@ -65,7 +65,7 @@ class LoginViewModel: ObservableObject {
             otp: otp // This 'otp' property is now synchronized from the OTPView's individual digits
         )
         let headers = [
-            "Authorization": Constants.API.companySettingsAuthKey
+            "Authorization": Constants.API.companySettingsAuthKeyDefault
         ]
         let result: Result<OTPResponse, Error> = await APIService.shared.postRequest(
             endpoint: Constants.API.verifyOTPEndpoint,
@@ -76,9 +76,7 @@ class LoginViewModel: ObservableObject {
         switch result {
         case .success(let response):
             self.otpResponse = response
-            if let user = response.user?.first, let authKey = user.authKey, !authKey.isEmpty {
-                saveAuthKey(authKey)
-            } else if let token = response.getToken?.auth, !token.isEmpty {
+            if let token = response.getToken?.auth, !token.isEmpty {
                 saveAuthKey(token)
             } else {
                 // Handle case where no authKey/token is received but response is success

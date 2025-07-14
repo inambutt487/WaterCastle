@@ -23,7 +23,7 @@ class HomeViewModel: ObservableObject {
             fcm_token: "IQAAAACy0crjAADn_0qqajU6fmYk_IooNpvuQAlncHCzP67z2zr43WKmRA4V-lx8oOt_nvwrz6A8aKvX0TiU75DY-UgQneFHXj8a7nsx0rKSR2Mfqg"
         )
         let headers = [
-            "Authorization": Constants.API.companySettingsAuthKey
+            "Authorization": Constants.API.companySettingsAuthKeyDefault
         ]
         let result: Result<ProductResponse, Error> = await APIService.shared.postRequest(
             endpoint: Constants.API.getProductsByLocEndpoint,

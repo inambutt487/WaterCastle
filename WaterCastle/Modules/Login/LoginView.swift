@@ -5,7 +5,7 @@ import SwiftUI
 // are correctly defined as provided in previous responses.
 
 struct LoginView: View {
-    @ObservedObject var viewModel: LoginViewModel
+    @StateObject var viewModel = LoginViewModel()
     @Environment(\.presentationMode) var presentationMode
     var onLoginSuccess: (() -> Void)?
 

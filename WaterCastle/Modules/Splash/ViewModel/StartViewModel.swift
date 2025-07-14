@@ -16,7 +16,7 @@ class StartViewModel: BaseViewModel {
         self.isLoading = true
         let request = CompanySettingsRequest(location_date: "2025-05-01", country_id: "2229")
         let headers = [
-            "Authorization": Constants.API.companySettingsAuthKey
+            "Authorization": Constants.API.companySettingsAuthKeyDefault
         ]
      
         let result: Result<CompanySettingsResponse, Error> = await APIService.shared.postRequest(

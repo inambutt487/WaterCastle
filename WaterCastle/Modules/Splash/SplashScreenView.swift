@@ -2,8 +2,7 @@
 import SwiftUI
 
 struct SplashScreenView: View {
-    // Use this binding to control when to move to the next screen
-    @Binding var isActive: Bool
+    @EnvironmentObject var nav: AppNavigationState
 
     var body: some View {
         ZStack {
@@ -17,7 +16,7 @@ struct SplashScreenView: View {
             // Simulate loading or do your startup logic here
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 withAnimation {
-                    isActive = false
+                    nav.showSplash = false
                 }
             }
         }

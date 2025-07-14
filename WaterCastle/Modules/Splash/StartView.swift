@@ -2,11 +2,8 @@ import SwiftUI
 
 struct StartView: View {
     @StateObject private var viewModel = StartViewModel()
-    @StateObject private var introVM = IntroSlidesViewModel()
-    
+    @EnvironmentObject var nav: AppNavigationState
     @Environment(\.locale) var locale
-    @State private var navigateToMain = false
-    @State private var showIntro = false
 
     var body: some View {
         VStack {
@@ -24,9 +21,9 @@ struct StartView: View {
                         .scaledToFit()
                         .frame(width: 200, height: 200)
                     Button(action: {
-                        navigateToMain = true
+                        nav.markStartViewSeen()
                     }) {
-                        Text(NSLocalizedString("start", comment: "Start"))
+                        Text(NSLocalizedString("Start", comment: "Start"))
                             .font(.headline)
                             .padding()
                             .frame(maxWidth: .infinity)
@@ -44,25 +41,10 @@ struct StartView: View {
             Spacer()
         }
         .onAppear {
-                    if !UserDefaults.standard.bool(forKey: "didShowIntro") {
-                        showIntro = true
-                    } else {
-                        Task { await viewModel.fetchCompanySettings() }
-                    }
-                }
-                .background(Constants.AppColor.backgroundColor.ignoresSafeArea())
-                .fullScreenCover(isPresented: $showIntro, onDismiss: {
-                    UserDefaults.standard.set(true, forKey: "didShowIntro")
-                    Task { await viewModel.fetchCompanySettings() }
-                }) {
-                    IntroSlidesView(viewModel: introVM, isFinished: $showIntro)
-                }
-                .fullScreenCover(isPresented: $navigateToMain) {
-                    MainController()
-                }
-        
+            Task { await viewModel.fetchCompanySettings() }
+        }
+        .background(Constants.AppColor.backgroundColor.ignoresSafeArea())
     }
-
 }
 
 #Preview {

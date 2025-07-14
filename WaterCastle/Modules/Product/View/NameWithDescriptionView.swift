@@ -1,8 +1,16 @@
+//
+//  NameWithDescriptionView.swift
+//  WaterCastle
+//
+//  Created by Mac on 08/07/2025.
+//
+import SwiftUI
+
 struct NameWithDescriptionView: View {
     let name: String?
 
     var body: some View {
-        let parts = name?.splitNameAndDescription() ?? ("", nil)
+        let parts = name?.splitNameAndDescription() ?? ("", "")
 
         VStack(alignment: .leading, spacing: 2) {
             Text(parts.title)

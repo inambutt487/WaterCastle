@@ -39,3 +39,18 @@ extension ProductData {
         return vatEnabled ? (self.priceVat ?? self.price ?? "") : (self.price ?? "")
     }
 }
+
+
+extension String {
+    func splitNameAndDescription() -> (title: String, description: String?) {
+        if let range = self.range(of: "(") {
+            let title = self[..<range.lowerBound].trimmingCharacters(in: .whitespaces)
+            let description = self[range.lowerBound...]
+                .trimmingCharacters(in: CharacterSet(charactersIn: "() "))
+            return (String(title), String(description))
+        } else {
+            return (self, nil)
+        }
+    }
+}
+

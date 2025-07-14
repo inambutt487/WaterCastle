@@ -31,7 +31,7 @@ class ProductService {
         
         switch result {
         case .success(let response):
-            return .success(response.rows ?? [])
+            return .success(response.data ?? [])
         case .failure(let error):
             return .failure(error)
         }
@@ -42,11 +42,16 @@ class ProductService {
             "Authorization": Constants.API.companySettingsAuthKey
         ]
         let result: Result<OrderResponse, Error> = await APIService.shared.postRequest(
-            endpoint: "/get_cart_parameters_1",
+            endpoint: Constants.API.addToCartEndpoint,
             body: request,
             headers: headers
         )
-        return result
+        switch result {
+        case .success(let response):
+            return .success(response)
+        case .failure(let error):
+            return .failure(error)
+        }
     }
 
 }

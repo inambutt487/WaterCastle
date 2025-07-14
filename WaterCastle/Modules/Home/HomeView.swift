@@ -1,10 +1,9 @@
 import SwiftUI
 
-import SwiftUI
-
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
     @State private var index = 0
+    @EnvironmentObject var nav: AppNavigationState
     private let arrImage = ["collage", "collage", "collage", "collage"]
     var onProductTap: ((ProductData, [Promotion], Int) -> Void)? = nil
 
@@ -147,5 +146,6 @@ struct HomeView: View {
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView()
+            .environmentObject(AppNavigationState())
     }
 }

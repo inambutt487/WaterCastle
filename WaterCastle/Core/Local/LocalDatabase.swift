@@ -79,4 +79,52 @@ struct LocalDatabase {
         }
         return nil;
     }
+
+    // MARK: - Address List
+    static let addressesKey = "userAddresses"
+    static let homeAddressKey = "homeAddress"
+    static func saveAddresses(_ addresses: [Address]) {
+        if let data = try? JSONEncoder().encode(addresses) {
+            UserDefaults.standard.set(data, forKey: addressesKey)
+            // Save the first address as the home address by default
+            if let first = addresses.first {
+                saveHomeAddress(first)
+            }
+        }
+    }
+    static func loadAddresses() -> [Address]? {
+        if let data = UserDefaults.standard.data(forKey: addressesKey) {
+            return try? JSONDecoder().decode([Address].self, from: data)
+        }
+        return nil
+    }
+    static func saveHomeAddress(_ address: Address) {
+        if let data = try? JSONEncoder().encode(address) {
+            UserDefaults.standard.set(data, forKey: homeAddressKey)
+        }
+    }
+    static func loadHomeAddress() -> Address? {
+        if let data = UserDefaults.standard.data(forKey: homeAddressKey) {
+            return try? JSONDecoder().decode(Address.self, from: data)
+        }
+        return nil
+    }
+}
+
+extension LocalDatabase {
+    static let cachedProductSelectionKey = "cachedProductSelection"
+    static func saveProductSelection(_ selection: CachedProductSelection) {
+        if let data = try? JSONEncoder().encode(selection) {
+            UserDefaults.standard.set(data, forKey: cachedProductSelectionKey)
+        }
+    }
+    static func loadProductSelection() -> CachedProductSelection? {
+        if let data = UserDefaults.standard.data(forKey: cachedProductSelectionKey) {
+            return try? JSONDecoder().decode(CachedProductSelection.self, from: data)
+        }
+        return nil
+    }
+    static func clearProductSelection() {
+        UserDefaults.standard.removeObject(forKey: cachedProductSelectionKey)
+    }
 }

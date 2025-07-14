@@ -29,6 +29,7 @@ enum Constants {
     // MARK: - API URLs
     enum API {
         static let baseURL = "https://fgstg.berain.com.sa/berain_oms/api/v4"
+        static let companySettingsAuthKeyDefault = "060fac9a80afec9b95eb292ad884c5f5"
         
         static var companySettingsAuthKey: String {
             get {
@@ -49,6 +50,9 @@ enum Constants {
         static let getProductsByLocEndpoint = "/get_products_byloc"
         static let loginEndpoint = "/LoginRegister"
         static let verifyOTPEndpoint = "/CheckUserOtp"
+        static let addToCartEndpoint = "/get_cart_parameters_1"
+        static let checkoutEndpoint = "/get_cart_parameters_2"
+        static let saveOrderEndpoint = "/save_order_new"
 
         // Centralized API hardcoded values
         static let defaultAreaId = "3444"
